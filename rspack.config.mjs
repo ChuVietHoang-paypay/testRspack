@@ -1,9 +1,7 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as Repack from '@callstack/repack';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import rspack from '@rspack/core';
+import getSharedDependencies from './sharedDeps.js';
 
 /**
  * Rspack configuration enhanced with Re.Pack defaults for React Native.
@@ -12,17 +10,58 @@ const __dirname = path.dirname(__filename);
  * Learn about Re.Pack configuration: https://re-pack.dev/docs/guides/configuration
  */
 
-export default {
-  context: __dirname,
-  entry: './index.js',
-  resolve: {
-    ...Repack.getResolveOptions(),
-  },
-  module: {
-    rules: [
-      ...Repack.getJsTransformRules(),
-      ...Repack.getAssetTransformRules(),
+export default env => {
+  const {
+    mode = 'development',
+    context = Repack.getDirname(import.meta.url),
+    entry = './index.js',
+    platform = process.env.PLATFORM,
+  } = env;
+  const dirname = Repack.getDirname(import.meta.url);
+
+  if (!platform) {
+    throw new Error('Missing platform');
+  }
+  return {
+    mode,
+    context,
+    entry,
+    experiments: {
+      incremental: mode === 'development',
+    },
+    resolve: {
+      ...Repack.getResolveOptions(),
+    },
+    module: {
+      rules: [
+        ...Repack.getJsTransformRules(),
+        ...Repack.getAssetTransformRules(),
+        {
+          test: /\.jsx?$/,
+          type: 'javascript/auto',
+          exclude: /node_modules/,
+          use: {
+            loader: '@callstack/repack/flow-loader',
+            options: {all: true},
+          },
+        },
+      ],
+    },
+    output: {
+      uniqueName: 'sas-host',
+    },
+    plugins: [
+      new Repack.RepackPlugin(),
+      new Repack.plugins.ModuleFederationPluginV2({
+        name: 'host',
+        dts: false,
+        remotes: {},
+        shared: getSharedDependencies({eager: true}),
+      }),
+      // silence missing @react-native-masked-view optionally required by @react-navigation/elements
+      new rspack.IgnorePlugin({
+        resourceRegExp: /^@react-native-masked-view/,
+      }),
     ],
-  },
-  plugins: [new Repack.RepackPlugin()],
+  };
 };
