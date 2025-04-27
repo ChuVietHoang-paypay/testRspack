@@ -2458,7 +2458,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@module-federation/runtime@npm:0.13.0":
+"@module-federation/runtime@npm:0.13.0, @module-federation/runtime@npm:^0.13.0":
   version: 0.13.0
   resolution: "@module-federation/runtime@npm:0.13.0"
   dependencies:
@@ -11094,6 +11094,7 @@ __metadata:
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/repack": "npm:^5.0.6"
     "@module-federation/enhanced": "npm:^0.13.0"
+    "@module-federation/runtime": "npm:^0.13.0"
     "@react-native-community/cli": "npm:15.0.1"
     "@react-native-community/cli-platform-android": "npm:15.0.1"
     "@react-native-community/cli-platform-ios": "npm:15.0.1"

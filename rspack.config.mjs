@@ -31,6 +31,14 @@ export default env => {
     },
     resolve: {
       ...Repack.getResolveOptions(),
+      alias: {
+        '@src': path.resolve(dirname, 'src'),
+        // Fix strict import của native-stack
+        './views/NativeStackView': path.resolve(
+          dirname,
+          'node_modules/@react-navigation/native-stack/lib/module/views/NativeStackView.native.js',
+        ),
+      },
     },
     module: {
       rules: [
